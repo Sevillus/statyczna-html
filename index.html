@@ -1,437 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Moja Strona — Demo (Tryb obciążenia)</title>
-    <meta name="description" content="Strona z Bootstrap i dynamiczną listą z API. Posiada tryb obciążenia do testów wydajności." />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <style>
-        :root{
-            --radius: 14px;
-            --shadow: 0 8px 30px rgba(0,0,0,.08);
-        }
-        body{ font-feature-settings:"liga" 1,"kern" 1; text-rendering:optimizeLegibility; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Słaba Wydajność Lighthouse</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
 
-        /* Pasek nawigacji */
-        .navbar{
-            backdrop-filter: saturate(180%) blur(8px);
-            background: rgba(255,255,255,.85);
-            box-shadow: 0 2px 10px rgba(0,0,0,.06);
-            will-change: transform;
-        }
-
-        /* Hero */
-        .hero{
-            background: radial-gradient(1200px 600px at 0% 0%, #eef4ff 0%, #f8f9fa 60%);
-            border-bottom: 1px solid rgba(0,0,0,.06);
-            padding-top: 6rem;
-            padding-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero .lead{ font-size: 1.15rem; color: #4b5563; }
-        .hero-img{
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            width: 100%; height: auto; object-fit: cover; aspect-ratio: 4/3;
-            transform: translateZ(0);
-        }
-        /* Canvas w hero */
-        #heroCanvas{
-            position:absolute; inset:0; width:100%; height:100%;
-            pointer-events:none; mix-blend-mode:multiply; opacity:.5;
-        }
-
-        /* Karty listy */
-        .card{
-            border: 1px solid rgba(0,0,0,.06);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            height: 100%;
-            will-change: transform;
-        }
-        .card-img-top{ aspect-ratio: 16/9; object-fit: cover; }
-
-        /* Loader */
-        .skeleton{
-            background: linear-gradient(90deg, #f2f4f7 25%, #e5e7eb 37%, #f2f4f7 63%);
-            background-size: 400% 100%;
-            animation: shimmer 1.4s ease-in-out infinite;
-            border-radius: 10px;
-        }
-        @keyframes shimmer{ 0%{background-position:100% 0} 100%{background-position:-100% 0} }
-
-        /* Stopka */
-        footer{ background:#0b1220; color:#cbd5e1; padding:2.5rem 0; margin-top:3rem; }
-        footer a{ color:#e2e8f0; text-decoration: none; }
-        footer a:hover{ text-decoration: underline; }
-
-        /* === TRYB OBCIĄŻENIA === */
-        .slow-mode * { text-shadow: 0 0 1px rgba(0,0,0,.15); }
-        .slow-mode img { filter: blur(1px) contrast(110%) saturate(140%); }
-        .slow-mode .card { box-shadow: 0 30px 60px rgba(0,0,0,.25) !important; }
-
-        /* wiele elementów z animacjami */
-        @keyframes floaty { from { transform: translateY(0) } to { transform: translateY(6px) } }
-        @keyframes hue { to { filter: hue-rotate(360deg) } }
-        .slow-mode .navbar, .slow-mode .hero, .slow-mode footer {
-            animation: floaty 1.2s ease-in-out infinite alternate;
-        }
-        .slow-mode .hero-img { animation: hue 6s linear infinite; }
-        .slow-mode .card:hover { transform: translateY(-4px) scale(1.01); transition: transform .2s; }
-
-        /* Overlay FPS */
-        #fps {
-            position: fixed; right: 12px; bottom: 12px; z-index: 9999;
-            background: rgba(0,0,0,.7); color:#fff; font: 12px/1.2 system-ui, sans-serif;
-            padding: 8px 10px; border-radius: 8px; min-width: 70px; text-align: center;
-            box-shadow: 0 6px 20px rgba(0,0,0,.3);
-            user-select: none;
-        }
-    </style>
+    <script src="heavy-script.js"></script>
 </head>
 <body>
-<!-- Nawigacja -->
-<nav class="navbar navbar-expand-lg fixed-top">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#">TwojaMarka</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Przełącz nawigację">
+        <a class="navbar-brand" href="#">Słabość.pl</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                <li class="nav-item"><a class="nav-link" href="#o-nas">O nas</a></li>
-                <li class="nav-item"><a class="nav-link" href="#lista">Galeria z API</a></li>
-                <li class="nav-item"><a class="btn btn-primary ms-lg-2" href="#kontakt">Kontakt</a></li>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Start <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">O nas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Usługi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Kontakt</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Więcej
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="#">Blog</a>
+                        <a class="dropdown-item" href="#">Galeria</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Cennik</a>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Sekcja hero (2 kolumny + canvas na cząsteczki) -->
-<section class="hero" id="o-nas">
-    <canvas id="heroCanvas"></canvas>
-    <div class="container position-relative">
-        <div class="row align-items-center g-4">
-            <div class="col-12 col-lg-6">
-                <h1 class="display-5 fw-bold mb-3">Piękna strona startowa z <span class="text-primary">Bootstrap</span></h1>
-                <p class="lead mb-4">
-                    Sekcja opis + obraz (układ <code>col-lg-6 / col-lg-6</code>). Niżej dynamiczna lista z API.
-                    Włącz tryb obciążenia dopisując do adresu <code>?slow=1</code> (lub <code>&load=2</code>, <code>3</code>).
-                </p>
-                <div class="d-flex gap-2">
-                    <a href="#lista" class="btn btn-primary btn-lg">Zobacz listę</a>
-                    <a href="#kontakt" class="btn btn-outline-secondary btn-lg">Skontaktuj się</a>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6">
-                <img class="hero-img" id="heroImg" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop" alt="Zespół pracujący przy komputerach">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Dynamiczna lista z API -->
-<section class="py-5" id="lista" aria-labelledby="lista-heading">
+<header class="jumbotron jumbotron-fluid text-center">
     <div class="container">
-        <div class="d-flex align-items-center justify-content-between mb-3">
-            <h2 id="lista-heading" class="h3 mb-0">Galeria z API</h2>
-            <div class="d-flex gap-2">
-                <button id="reloadBtn" class="btn btn-outline-primary btn-sm">Przeładuj</button>
-            </div>
+        <h1 class="display-4">Witaj na Słabej Stronie</h1>
+        <p class="lead">Obejrzyj nasz film, który ładuje się bardzo wolno.</p>
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>
         </div>
-        <p class="text-muted mb-4">Karty ładowane z <code>picsum.photos</code>.</p>
-
-        <!-- Loader: szkielety -->
-        <div id="loader" class="row g-4">
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton" style="height:220px;"></div></div>
-        </div>
-
-        <!-- Grid z kartami -->
-        <div id="cardsGrid" class="row g-4" hidden></div>
-
-        <!-- Komunikaty -->
-        <div id="statusMsg" class="text-center text-muted mt-3" role="status" aria-live="polite"></div>
     </div>
-</section>
+</header>
 
-<!-- Stopka -->
-<footer id="kontakt">
-    <div class="container">
-        <div class="row gy-3 align-items-center">
-            <div class="col-12 col-md-6">
-                <strong>TwojaMarka</strong> — © <span id="year"></span>. Wszelkie prawa zastrzeżone.
-            </div>
-            <div class="col-12 col-md-6 text-md-end">
-                <a href="#o-nas" class="me-3">O nas</a>
-                <a href="#lista" class="me-3">Galeria</a>
-                <a href="mailto:kontakt@twojamarka.pl">kontakt@twojamarka.pl</a>
+<main class="container py-5">
+    <h2 class="text-center mb-5">Galeria Danych (ładowanie celowo spowolnione)</h2>
+    <div class="row" id="data-container">
+        <div class="col-12 text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Ładowanie...</span>
             </div>
         </div>
     </div>
-</footer>
+</main>
 
-<div id="fps" hidden>FPS: --</div>
+<script src="main.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script>
-    // ==== Sterowanie trybem ====
-    const qs = new URLSearchParams(location.search);
-    const SLOW = qs.has('slow');                  // ?slow=1
-    const LOAD = Math.max(1, Math.min(3, parseInt(qs.get('load') || '1', 10))); // 1..3
-    if (SLOW) document.documentElement.classList.add('slow-mode');
-
-    // Rok w stopce
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // UI
-    const loader = document.getElementById('loader');
-    const grid = document.getElementById('cardsGrid');
-    const statusMsg = document.getElementById('statusMsg');
-    const reloadBtn = document.getElementById('reloadBtn');
-    const hero = document.querySelector('.hero');
-    const heroImg = document.getElementById('heroImg');
-
-    // ====== API (Picsum) ======
-    const BASE_LIMIT = 12;
-    const itemCount = SLOW ? BASE_LIMIT * (LOAD * 2) : BASE_LIMIT; // więcej kart w trybie slow
-    const API_URL = `https://picsum.photos/v2/list?limit=${itemCount}&page=${Math.ceil(Math.random()*5)}`;
-    const CACHE_KEY = `demo_api_items_picsum_v2_${itemCount}`;
-
-    async function fetchItems(){
-        statusMsg.textContent = '';
-        grid.hidden = true;
-        loader.style.display = '';
-
-        try{
-            // w trybie SLOW nie korzystamy z cache, żeby dołożyć koszt sieci
-            const cached = (!SLOW) ? sessionStorage.getItem(CACHE_KEY) : null;
-            if(cached){
-                renderCards(JSON.parse(cached));
-                return;
-            }
-
-            // mały sztuczny lag sieci w SLOW
-            const lag = SLOW ? (300 * LOAD + Math.random()*300) : 0;
-            if (lag) await new Promise(r => setTimeout(r, lag));
-
-            const res = await fetch(API_URL + (SLOW ? `&rnd=${Math.random()}` : ''), { cache: 'no-store' });
-            if(!res.ok) throw new Error('Błąd sieci: ' + res.status);
-            const data = await res.json();
-
-            if(!SLOW) sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
-            renderCards(data);
-        }catch(err){
-            console.error(err);
-            statusMsg.textContent = 'Nie udało się pobrać danych. Spróbuj ponownie.';
-            loader.style.display = 'none';
-        }
-    }
-
-    function renderCards(items){
-        const html = items.map((item, i) => {
-            // Rozmiary obrazów — w SLOW większe
-            const w = SLOW ? 1280 : 600;
-            const h = SLOW ? 720 : 338;
-            const thumb = `https://picsum.photos/id/${item.id}/${w}/${h}`;
-            const full  = `https://picsum.photos/id/${item.id}/${w*2}/${h*2}`;
-            const title = escapeHtml(item.author || 'Autor nieznany');
-
-            // Wyłączamy lazy-loading w SLOW, by obciążyć sieć i dekoder obrazów
-            const lazyAttr = SLOW ? '' : 'loading="lazy"';
-
-            // Kilka powtarzalnych elementów w SLOW, by zwiększyć dom/paint
-            const badges = SLOW ? `<span class="badge text-bg-light me-1">#${i}</span>`.repeat(3*LOAD) : '';
-
-            return `
-          <div class="col-12 col-sm-6 col-lg-4">
-            <article class="card h-100">
-              <img class="card-img-top"
-                   src="${thumb}"
-                   alt="Zdjęcie od ${title}"
-                   ${lazyAttr}
-                   referrerpolicy="no-referrer"
-                   onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,${encodeURIComponent(placeholderSVG(title))}';">
-              <div class="card-body d-flex flex-column">
-                <h3 class="h6 card-title mb-2">${title} ${badges}</h3>
-                <p class="card-text text-muted mb-3">ID: ${item.id} • Rozmiar: ${w}×${h}</p>
-                <a class="btn btn-sm btn-primary mt-auto" href="${full}" target="_blank" rel="noopener">Otwórz obraz</a>
-              </div>
-            </article>
-          </div>
-        `;
-        }).join('');
-
-        grid.innerHTML = html;
-        loader.style.display = 'none';
-        grid.hidden = false;
-        statusMsg.textContent = items.length ? '' : 'Brak danych do wyświetlenia.';
-
-        if (SLOW) kickHeavyAnimations();
-    }
-
-    // ====== Funkcje pomocnicze ======
-    function escapeHtml(str){
-        return String(str).replace(/[&<>"']/g, (m) => ({
-            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-        }[m]));
-    }
-    function placeholderSVG(text){
-        return `
-        <svg xmlns='http://www.w3.org/2000/svg' width='600' height='338'>
-          <rect width='100%' height='100%' fill='#e5e7eb'/>
-          <text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui, sans-serif' font-size='18' fill='#6b7280'>
-            Obraz niedostępny — ${text}
-          </text>
-        </svg>`;
-    }
-
-    reloadBtn.addEventListener('click', () => {
-        sessionStorage.removeItem(CACHE_KEY);
-        fetchItems();
-    });
-
-    // ====== Efekty obciążeniowe (aktywne tylko w SLOW) ======
-    let rafId, rafId2, thrashId, parallaxId;
-    function kickHeavyAnimations(){
-        // FPS overlay
-        const fpsBox = document.getElementById('fps');
-        fpsBox.hidden = false;
-        let last = performance.now(), frames = 0;
-        function fpsTick(t){
-            frames++;
-            if (t - last >= 1000){
-                fpsBox.textContent = `FPS: ${frames}`;
-                frames = 0; last = t;
-            }
-            requestAnimationFrame(fpsTick);
-        }
-        requestAnimationFrame(fpsTick);
-
-        // Canvas cząsteczki
-        startParticles();
-
-        // CPU burn + layout thrash co klatkę
-        cpuAndLayoutBurn();
-
-        // Paralaksa na scroll (częste reflow)
-        parallaxScroll();
-    }
-
-    function cpuAndLayoutBurn(){
-        const burnMs = 4 * LOAD; // ~4/8/12ms busy-wait na klatkę
-        const cards = () => Array.from(document.querySelectorAll('.card'));
-
-        function loop(){
-            const t0 = performance.now();
-            // Busy-wait (CPU burn)
-            while (performance.now() - t0 < burnMs) {}
-
-            // Layout thrash: czytanie i pisanie stylów naprzemiennie
-            const list = cards();
-            for (let i=0; i<list.length; i+=Math.max(1, 4-LOAD)){
-                const el = list[i];
-                // read
-                const h = el.offsetHeight; // wymusza reflow
-                // write
-                el.style.transform = `translateZ(0) rotate(${(h % 2 ? 0.05 : -0.05) * LOAD}deg)`;
-            }
-            rafId = requestAnimationFrame(loop);
-        }
-        loop();
-
-        // Druga pętla: gwałtowne zmiany stylów tła body
-        function repaintLoop(){
-            const x = Math.random()*100, y = Math.random()*100;
-            document.body.style.backgroundImage = `radial-gradient(800px 400px at ${x}% ${y}%, rgba(0,0,0,0.02), transparent)`;
-            rafId2 = requestAnimationFrame(repaintLoop);
-        }
-        repaintLoop();
-    }
-
-    function parallaxScroll(){
-        const base = hero.getBoundingClientRect().top + window.scrollY;
-        function onScroll(){
-            const y = window.scrollY - base;
-            // przesuwaj gradient hero i obraz
-            hero.style.backgroundPosition = `${(y*0.2)%100}% ${(y*0.3)%100}%`;
-            heroImg.style.transform = `translateY(${y*0.06}px) scale(${1 + 0.02*LOAD})`;
-        }
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
-        parallaxId = onScroll; // tylko referencja
-    }
-
-    // Canvas cząsteczki
-    function startParticles(){
-        const canvas = document.getElementById('heroCanvas');
-        const ctx = canvas.getContext('2d');
-        function resize(){
-            const rect = hero.getBoundingClientRect();
-            canvas.width = rect.width * devicePixelRatio;
-            canvas.height = rect.height * devicePixelRatio;
-        }
-        resize(); addEventListener('resize', resize);
-
-        const count = 80 * LOAD; // 80/160/240
-        const P = new Array(count).fill(0).map(() => ({
-            x: Math.random()*canvas.width,
-            y: Math.random()*canvas.height,
-            vx: (Math.random()*2-1) * (0.6*LOAD),
-            vy: (Math.random()*2-1) * (0.6*LOAD),
-            r: (Math.random()*2 + 0.5) * devicePixelRatio
-        }));
-
-        function step(){
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.globalAlpha = 0.7;
-            for (let i=0;i<P.length;i++){
-                const p = P[i];
-                p.x += p.vx; p.y += p.vy;
-                if (p.x<0||p.x>canvas.width) p.vx*=-1;
-                if (p.y<0||p.y>canvas.height) p.vy*=-1;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-                ctx.fillStyle = 'rgba(99,102,241,0.6)';
-                ctx.fill();
-            }
-            // łączenie bliskich cząstek (overdraw)
-            ctx.globalAlpha = 0.15;
-            ctx.strokeStyle = '#6366f1';
-            for (let i=0;i<P.length;i++){
-                for (let j=i+1;j<i+12 && j<P.length;j++){
-                    const dx = P[i].x-P[j].x, dy=P[i].y-P[j].y;
-                    const d2 = dx*dx+dy*dy;
-                    if (d2 < (120*devicePixelRatio)**2) {
-                        ctx.beginPath();
-                        ctx.moveTo(P[i].x,P[i].y);
-                        ctx.lineTo(P[j].x,P[j].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-            requestAnimationFrame(step);
-        }
-        step();
-    }
-
-    // ====== Start ======
-    fetchItems();
-
-    // Sprzątanie (gdybyś nawigował SPA/anchors)
-    window.addEventListener('beforeunload', () => {
-        cancelAnimationFrame(rafId);
-        cancelAnimationFrame(rafId2);
-        if (parallaxId) window.removeEventListener('scroll', parallaxId);
-    });
-
-</script>
 </body>
 </html>
