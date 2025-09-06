@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Celowe, nieoptymalne pobieranie danych i renderowanie
     async function loadData() {
         // Symulacja długiego opóźnienia sieci
-        await delay(3000);
+        await delay(500);
 
         try {
             // Zmienione API na Unsplash, które zapewnia poprawne i stabilne adresy URL obrazów.
